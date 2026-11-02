@@ -1,6 +1,6 @@
 # Especificación inicial: reservas del laboratorio
 
-**Estado:** contrato inicial aceptado en T1. T2 implementó el inventario (`R1`); T3a implementó disponibilidad (`R2`) y creación (`R3`); T3b agregó cancelación (`R4`), consulta/historial (`R5`) y rechazos restantes (`R7`). La persistencia de reservas (`R6`) se comprobó entre dos contextos Spring que usaron el mismo archivo; el ensayo entre procesos del sistema operativo aún está pendiente.
+**Estado:** contrato inicial aceptado en T1. T2 implementó el inventario (`R1`); T3a implementó disponibilidad (`R2`) y creación (`R3`); T3b agregó cancelación (`R4`), consulta/historial (`R5`) y rechazos restantes (`R7`). T4 documenta la evidencia en el README. La persistencia de reservas (`R6`) se comprobó entre dos contextos Spring que usaron el mismo archivo; el ensayo entre procesos del sistema operativo no concluyó y el usuario aceptó cerrar T3 con esa limitación.
 
 **Objetivo:** consultar disponibilidad y reservar unidades del inventario del laboratorio, cancelar sin perder el registro y recuperar los datos después de reiniciar la aplicación.
 
@@ -78,6 +78,6 @@ Fuera de alcance: autenticación y roles reales, notificaciones, pagos, integrac
 | --- | --- | --- |
 | R1, R6 | T2 | Inventario precargado, base en archivo y reinicio comprobado |
 | R2–R5, R7 | T3 | Endpoints y pruebas de aceptación por regla |
-| R1–R7 | T4 | README operativo, pruebas ejecutadas y decisiones humanas documentadas |
+| R1–R7 | T4 | README operativo, pruebas ejecutadas y decisiones humanas documentadas; ensayo entre procesos no concluido |
 
 [Volver al README](../README.md) · [Plan de tareas](../odd/tasks/lab-reservations.md)
