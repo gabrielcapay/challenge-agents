@@ -1,10 +1,10 @@
 # Especificación inicial: reservas del laboratorio
 
-**Estado:** contrato inicial aceptado en T1. T2 implementó y probó el inventario (`R1`) con SQLite; los endpoints de reservas y su persistencia (`R2`–`R7`, salvo la porción de inventario de `R6`) siguen pendientes de T3.
+**Estado:** contrato inicial aceptado en T1. T2 implementó el inventario (`R1`); T3a implementó disponibilidad (`R2`), creación (`R3`), listado (`R5` parcial) y validaciones (`R7` parcial). Cancelación, búsqueda por ID y persistencia de reservas entre procesos quedan pendientes de T3b.
 
 **Objetivo:** consultar disponibilidad y reservar unidades del inventario del laboratorio, cancelar sin perder el registro y recuperar los datos después de reiniciar la aplicación.
 
-**Lectura rápida:** los requisitos `R1`–`R7` describen resultados observables; solo la aceptación del inventario de `R1` y su reinicio con SQLite se comprobó en T2. Los demás ejemplos siguen pendientes de ejecución.
+**Lectura rápida:** los requisitos `R1`–`R7` describen resultados observables; T2 comprobó el inventario y T3a comprobó los casos de disponibilidad, creación, listado y rechazos aplicables. Los escenarios de cancelación y reinicio con reservas aún no se ejecutaron.
 
 ## Modelo y decisiones temporales
 
@@ -17,7 +17,7 @@
 | Pasado y límites | Se permiten intervalos en el pasado para reproducir escenarios de demostración. No se fija duración máxima ni anticipación máxima; la duración debe ser positiva. No depender del reloj actual para decidir disponibilidad. |
 | Persistencia | Base SQLite local en archivo; reiniciar el proceso sin borrar ese archivo conserva activas y canceladas. Una operación explícita de reinicio de datos, si se agrega, debe distinguirse de reiniciar el proceso e indicar que borra reservas. |
 
-`GET /api/equipos` ya es una ruta implementada en T2; las rutas de reservas que siguen son el **contrato propuesto** para T3. Sus ejemplos describen resultados esperados y no resultados observados.
+`GET /api/equipos` está implementada desde T2; T3a implementó disponibilidad, creación y listado. Las rutas de cancelación y búsqueda por ID siguen siendo el **contrato propuesto** para T3b. Los ejemplos de esos endpoints aún describen resultados esperados.
 
 ## R1 — Inventario fijo
 
@@ -61,7 +61,7 @@ Se rechaza un `equipoId` desconocido; un `solicitante` vacío o compuesto solo p
 
 **Aceptación R7:** enviar cada caso inválido anterior tanto a la operación que corresponda como, para equipo y tiempo, a disponibilidad; comprobar el rechazo, la ausencia de nuevas reservas y que la consulta posterior de una reserva existente mantiene sus datos. Un conflicto tampoco altera el número de reservas. Las respuestas distinguen entradas inválidas (400), recursos inexistentes (404) y conflictos de estado u ocupación (409), con un mensaje explicativo; la forma exacta del error se fijará al implementar.
 
-## Escenarios de prueba reproducibles (pendientes de ejecución)
+## Escenarios de prueba reproducibles (parcialmente ejecutados)
 
 Los ejemplos usan instantes fijos; `A` y `B` representan IDs generados, no valores predeterminados.
 

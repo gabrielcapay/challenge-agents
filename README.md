@@ -1,12 +1,12 @@
 # Reservas del laboratorio
 
-**Estado: T2, inventario ejecutable; reservas pendientes.** La API ya permite consultar el inventario fijo en SQLite. La disponibilidad, creación, cancelación e historial de reservas son trabajo futuro (T3). El contrato está en [la especificación](docs/specification.md) y las tareas en [el plan](odd/tasks/lab-reservations.md).
+**Estado: T3a, disponibilidad, creación y listado ejecutables.** La API permite consultar el inventario y reservar unidades en SQLite. Cancelación, búsqueda por ID y comprobación de persistencia de reservas tras reiniciar quedan pendientes de T3b. El contrato está en [la especificación](docs/specification.md) y las tareas en [el plan](odd/tasks/lab-reservations.md).
 
 ## 1. Especificación breve
 
-La API local usa Spring Boot, Java y SQLite para cinco unidades de laboratorio: dos microscopios digitales (`MIC-01`, `MIC-02`), un osciloscopio (`OSC-01`), un multímetro (`MUL-01`) y una fuente (`FUE-01`). Actualmente se consulta el inventario; T3 añadirá disponibilidad, reservas, cancelación y conservación del historial.
+La API local usa Spring Boot, Java y SQLite para cinco unidades de laboratorio: dos microscopios digitales (`MIC-01`, `MIC-02`), un osciloscopio (`OSC-01`), un multímetro (`MUL-01`) y una fuente (`FUE-01`). Se consulta el inventario, la disponibilidad, se crean reservas y se listan registros; cancelar y recuperar un registro por ID quedan pendientes de T3b.
 
-En T3 cada reserva tendrá ID, unidad, solicitante ficticio, inicio, fin y estado. Los intervalos previstos son `[inicio, fin)` con fechas ISO 8601 y desplazamiento explícito. Solo las activas bloquearán una unidad. Los requisitos `R1`–`R7` están en [docs/specification.md](docs/specification.md): R1 está implementado; R6 solo tiene el inventario persistente, y los demás criterios siguen pendientes.
+Cada reserva tiene ID estable generado, unidad, solicitante ficticio, inicio, fin y estado `ACTIVA`. Los intervalos son `[inicio, fin)` con fechas ISO 8601 y desplazamiento explícito, normalizadas a UTC. Se admiten fechas pasadas sin duración ni anticipación máximas. Solo las activas bloquean una unidad. Los requisitos `R1`–`R7` están en [docs/specification.md](docs/specification.md): R2, R3 y el listado de R5 están implementados; R7 parcialmente; R4 y el resto de R5–R7 quedan pendientes.
 
 ## 2. Solución y ejecución
 
@@ -28,13 +28,35 @@ curl http://localhost:8080/api/equipos
 
 La respuesta es un arreglo JSON de cinco objetos `{ "id": "MIC-01", "tipo": "microscopio digital" }` (y `MIC-02`, `OSC-01`, `MUL-01`, `FUE-01` con sus respectivos tipos). La prueba automatizada realiza peticiones HTTP reales, comprueba los cinco objetos y reinicia el contexto apuntando al mismo archivo. Además, se inició manualmente el JAR dos veces con el mismo archivo SQLite temporal y se consultó `GET /api/equipos` con `curl`: ambas respuestas fueron HTTP 200 con los cinco IDs esperados. El arranque manual no prueba todavía persistencia de reservas.
 
+### Consultar y reservar (T3a)
+
+Con el servidor iniciado, usar instantes ISO 8601 con zona explícita (se comparan en UTC):
+
+```sh
+curl 'http://localhost:8080/api/equipos/MIC-01/disponibilidad?inicio=2026-11-03T10:00:00Z&fin=2026-11-03T11:00:00Z'
+# {"disponible":true}
+curl -X POST http://localhost:8080/api/reservas -H 'Content-Type: application/json' -d '{"equipoId":"MIC-01","solicitante":"Persona Demo","inicio":"2026-11-03T10:00:00Z","fin":"2026-11-03T11:00:00Z"}'
+# 200: {"id":"<UUID generado>","equipoId":"MIC-01","solicitante":"Persona Demo","inicio":"2026-11-03T10:00:00Z","fin":"2026-11-03T11:00:00Z","estado":"ACTIVA"}
+curl http://localhost:8080/api/reservas
+# 200: arreglo con las reservas, incluida la anterior
+```
+
+Los ejemplos `curl` anteriores son para una terminal que ejecute `curl` real (por ejemplo, Git Bash). En Windows PowerShell, `curl` puede ser un alias de `Invoke-WebRequest`; para crear una reserva con PowerShell sin depender de cómo escape las comillas de `curl.exe`:
+
+```powershell
+$body = @{ equipoId = 'MIC-01'; solicitante = 'Persona Demo'; inicio = '2026-11-03T10:00:00Z'; fin = '2026-11-03T11:00:00Z' } | ConvertTo-Json
+Invoke-RestMethod -Uri 'http://localhost:8080/api/reservas' -Method Post -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($body))
+```
+
+La disponibilidad devuelve `{"disponible":false}` si hay una activa que se superpone en esa unidad; intervalos consecutivos y unidades distintas son independientes. Equipo desconocido: 404; solicitante vacío, fechas inválidas/sin zona o inicio no anterior al fin: 400; intervalo ocupado al crear: 409. Los rechazos incluyen `{"error":"<mensaje>"}` y no insertan registros. La creación serializa la comprobación y la inserción mediante una transacción SQLite `BEGIN IMMEDIATE` con espera acotada. No hay endpoints de cancelación ni consulta por ID todavía.
+
 ### Archivo y reinicio
 
 La base predeterminada es `./lab-reservations.sqlite`, relativa al directorio desde donde se inicia Java; el archivo se crea al arrancar. El esquema `schema.sql` usa `CREATE TABLE IF NOT EXISTS`; `data.sql` inserta las cinco unidades solo si no existen. Spring ejecuta ambos en cada inicio porque `spring.sql.init.mode=always` (SQLite no es un datasource embebido reconocido por defecto). El inventario permanece sin duplicados al detener el proceso y ejecutar de nuevo el mismo `java -jar` desde el mismo directorio. Para usar otro archivo, define `LAB_DB_PATH` con una ruta a un archivo cuya carpeta ya exista antes del arranque; por ejemplo, en PowerShell: `$env:LAB_DB_PATH = './lab-reservations.sqlite'`. No cambies la ruta entre arranques si quieres conservar los datos.
 
-**Reiniciar datos no es reiniciar el proceso:** para empezar con otra base, detén el servidor y elimina explícitamente el archivo SQLite (y cualquier archivo lateral SQLite asociado, si existiera) o elige una nueva ruta vacía. Borrar la base **también borrará todas las reservas e historial** cuando T3 los implemente; no hagas esto para un reinicio normal. El directorio `target/` y la base predeterminada están excluidos de Git.
+**Reiniciar datos no es reiniciar el proceso:** para empezar con otra base, detén el servidor y elimina explícitamente el archivo SQLite (y cualquier archivo lateral SQLite asociado, si existiera) o elige una nueva ruta vacía. Borrar la base **también borra todas las reservas e historial**; no hagas esto para un reinicio normal. La comprobación automática del reinicio con reservas activas y canceladas queda pendiente de T3b. El directorio `target/` y la base predeterminada están excluidos de Git.
 
-La aplicación tiene `LabApplication` como entrada. La lectura de inventario se organiza en `controller/EquipoController` (HTTP), `service/EquipoService` (caso de uso), `repository/EquipoRepository` (consulta SQL) y `model/Equipo` (dato de salida); el esquema y la carga inicial están en `src/main/resources/`. Actualmente no hay rutas para crear, consultar disponibilidad, cancelar ni listar reservas; el ensayo de persistencia de reservas activas y canceladas de R6 queda para T3. Sin autenticación, roles reales, notificaciones, pagos ni despliegue de producción; usa únicamente solicitantes ficticios cuando T3 esté disponible.
+La aplicación tiene `LabApplication` como entrada. La lectura de inventario se organiza en `controller/EquipoController` (HTTP), `service/EquipoService` (caso de uso), `repository/EquipoRepository` (consulta SQL) y `model/Equipo` (dato de salida); el esquema y la carga inicial están en `src/main/resources/`. Las reservas se organizan en `ReservaController`, `ReservaService`, `ReservaRepository` y `Reserva`. Cancelación, búsqueda por ID y ensayo de persistencia de reservas activas y canceladas de R6 quedan para T3b. Sin autenticación, roles reales, notificaciones, pagos ni despliegue de producción; usa únicamente solicitantes ficticios.
 
 ## 3. Preparación del agente
 
