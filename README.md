@@ -48,7 +48,7 @@ $body = @{ equipoId = 'MIC-01'; solicitante = 'Persona Demo'; inicio = '2026-11-
 Invoke-RestMethod -Uri 'http://localhost:8080/api/reservas' -Method Post -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($body))
 ```
 
-La disponibilidad devuelve `{"disponible":false}` si hay una activa que se superpone en esa unidad; intervalos consecutivos y unidades distintas son independientes. Equipo desconocido: 404; solicitante vacío, fechas inválidas/sin zona o inicio no anterior al fin: 400; intervalo ocupado al crear: 409. Los rechazos incluyen `{"error":"<mensaje>"}` y no insertan registros. La creación serializa la comprobación y la inserción mediante una transacción SQLite `BEGIN IMMEDIATE` con espera acotada. La cancelación usa la misma exclusión de escritores para no competir con la comprobación de superposición.
+La disponibilidad devuelve `{"disponible":false}` si hay una activa que se superpone en esa unidad; intervalos consecutivos y unidades distintas son independientes. Equipo desconocido: 404; solicitante vacío, fechas inválidas/sin zona o inicio no anterior al fin: 400; intervalo ocupado al crear: 409. Los rechazos incluyen `{"error":"<mensaje>"}` y no insertan registros. La creación y la cancelación usan transacciones SQLite.
 
 ### Cancelación e historial
 
@@ -81,7 +81,7 @@ El trabajo se realiza con el harness Pi/el Gentleman y su proceso ODD: tareas ve
 ## 4. Decisiones y delegación
 
 - **Decisiones humanas registradas:** usar Spring Boot con SQLite y redactar la documentación del proyecto en español. El plan está en [odd/tasks/lab-reservations.md](odd/tasks/lab-reservations.md).
-- **T1–T3:** el usuario aceptó T1 con «esta perfecto», cerró T2 con «ahh dalo por hecho no es necesario,» y eligió «Aceptar evidencia actual» para T3b. T3 pasó pruebas HTTP y la suite (10 pruebas); el reinicio con reservas se probó entre dos contextos Spring sobre el mismo archivo. El ensayo manual entre dos procesos Java no terminó tras ~19 minutos y se detuvo: se aceptó esa limitación, no se aprobó el ensayo. En T2, la verificación HTTP independiente adicional también había quedado incompleta (salidas 124 y 1) y fue dispensada, no aprobada.
+- **T1–T3:** el usuario aceptó T1 con «esta perfecto», cerró T2 con «ahh dalo por hecho no es necesario,» y eligió «Aceptar evidencia actual» para T3b. T3 pasó las pruebas HTTP funcionales; la suite actual tiene ocho pruebas. El reinicio con reservas se probó entre dos contextos Spring sobre el mismo archivo. El ensayo manual entre dos procesos Java no terminó tras ~19 minutos y se detuvo: se aceptó esa limitación, no se aprobó el ensayo. En T2, la verificación HTTP independiente adicional también había quedado incompleta (salidas 124 y 1) y fue dispensada, no aprobada.
 - **Delegación:** los intentos anteriores de envío al escritor delegado fallaron antes de producir archivos. No cuentan como episodios completos ni como decisiones sobre resultados entregados. El registro de tres episodios reales (objetivo, contexto, salida, decisión humana y evidencia) queda pendiente de T4; no se inventan interacciones.
 - **Publicación:** rama de trabajo local; no hay envío, pull request ni aceptación de entrega autorizados.
 

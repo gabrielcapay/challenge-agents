@@ -72,7 +72,7 @@ Los ejemplos usan instantes fijos; `A` y `B` representan IDs generados, no valor
 
 ## Límites y trazabilidad
 
-Fuera de alcance: autenticación y roles reales, notificaciones, pagos, integraciones externas, interfaz gráfica compleja, despliegue y concurrencia distribuida de producción. El solicitante es ficticio y no representa datos de estudiantes reales. Una implementación local todavía deberá definir y probar cómo serializa escrituras concurrentes para que dos creaciones simultáneas no violen la regla de no superposición; esta especificación no afirma que ese control exista.
+Fuera de alcance: autenticación y roles reales, notificaciones, pagos, integraciones externas, interfaz gráfica compleja y despliegue de producción. El solicitante es ficticio y no representa datos de estudiantes reales. Las pruebas funcionales comprueban las reglas de superposición.
 
 | Requisito | Trabajo previsto | Evidencia aún pendiente |
 | --- | --- | --- |
