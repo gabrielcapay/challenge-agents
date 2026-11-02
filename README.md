@@ -222,7 +222,7 @@ Los resultados informados por escritores están rotulados como **informes del ag
 
 ### Harness, función y proceso
 
-El trabajo se realizó en **Pi/el Gentleman** con el flujo ODD (Objetivo, Decisiones y Desarrollo): el plan versionado delimita tareas, cada unidad tiene evidencia y las decisiones humanas cierran o mantienen abiertas las tareas. El harness coordinó dos funciones:
+El trabajo se realizó en **Pi/el Gentleman** con el flujo ODD (Organic Driven Development): el plan versionado delimita tareas, cada unidad tiene evidencia y las decisiones humanas cierran o mantienen abiertas las tareas. El harness coordinó dos funciones:
 
 - **Padre/orquestador:** mantuvo el contexto, autorizaciones y alcance; repitió comprobaciones; distinguió informes delegados de resultados observados; y conservó las decisiones humanas.
 - **Escritor delegado:** implementó unidades acotadas de T2, T3a y T3b y devolvió cambios y resultados de sus comandos. Sus informes no se trataron como comprobación independiente hasta que el padre o un verificador repitió la evidencia.
@@ -282,7 +282,7 @@ Estas adaptaciones se pueden rastrear al [Log](odd/tasks/lab-reservations.md#log
 
 ### Privacidad y publicación
 
-Los ejemplos usan `Persona Demo` y fechas fijas; no contienen personas reales, credenciales ni bases de datos. Este README resume decisiones con citas breves, no publica conversaciones completas. El trabajo permanece en una rama local: no se hizo push, no se abrió pull request y no hay autorización para publicar el repositorio. La preparación técnica no equivale a aceptación ni publicación.
+Los ejemplos usan `Persona Demo` y fechas fijas; no contienen personas reales, credenciales ni bases de datos. Este README resume decisiones con citas breves, no publica conversaciones completas. El trabajo permanece en una rama local: no se hizo push, no se abrió pull request y no hay autorización para publicar el repositorio. Se eligió preparar una cadena de revisión desde una rama de seguimiento por el tamaño del cambio; esos cortes aún no son PRs. La preparación técnica no equivale a aceptación ni publicación.
 
 ## 4. Decisiones y delegación
 
@@ -338,6 +338,6 @@ Los ejemplos usan `Persona Demo` y fechas fijas; no contienen personas reales, c
 | T3a | `99cf479` | [ReservationHttpTest](src/test/java/org/example/lab/ReservationHttpTest.java) | Continuación autorizada dentro de T3 |
 | T3b | `95b3139` | [Lifecycle](src/test/java/org/example/lab/ReservationLifecycleHttpTest.java) y [restart](src/test/java/org/example/lab/ReservationRestartHttpTest.java) | «Aceptar evidencia actual» |
 | Ajuste de pruebas | `5b63bfe` | Suite funcional actual de 8 pruebas | “Solo pruebas y referencias a concurrencia” |
-| T4 | Pendiente de commit de cierre | Este README y checks documentales | «vamos por t4» / «nos quedamos en t4» |
+| T4 | `0142400` y commit de cierre del plan | Este README y checks documentales | «vamos por t4» / «nos quedamos en t4» |
 
 Para auditar detalles, resultados fallidos y límites sin reconstruir conversaciones, consultar el [Log versionado del plan](odd/tasks/lab-reservations.md#log). La entrega permanece local y no publicada.
