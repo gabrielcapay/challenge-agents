@@ -282,7 +282,7 @@ Estas adaptaciones se pueden rastrear al [Log](odd/tasks/lab-reservations.md#log
 
 ### Privacidad y publicación
 
-Los ejemplos usan `Persona Demo` y fechas fijas; no contienen personas reales, credenciales ni bases de datos. Este README resume decisiones con citas breves, no publica conversaciones completas. El trabajo permanece en una rama local: no se hizo push, no se abrió pull request y no hay autorización para publicar el repositorio. Se eligió preparar una cadena de revisión desde una rama de seguimiento por el tamaño del cambio; esos cortes aún no son PRs. La preparación técnica no equivale a aceptación ni publicación.
+Los ejemplos usan `Persona Demo` y fechas fijas; no contienen personas reales, credenciales ni bases de datos. Este README sintetiza las decisiones en términos formales, sin publicar conversaciones completas. El trabajo permanece en una rama local: no se hizo push, no se abrió pull request y no hay autorización para publicar el repositorio. Se eligió preparar una cadena de revisión desde una rama de seguimiento por el tamaño del cambio; esos cortes aún no son PRs. La preparación técnica no equivale a aceptación ni publicación.
 
 ## 4. Decisiones y delegación
 
@@ -291,9 +291,9 @@ Los ejemplos usan `Persona Demo` y fechas fijas; no contienen personas reales, c
 | Paso | Evidencia real |
 | --- | --- |
 | Objetivo/requisito | Definir `R1`–`R7`, decisiones temporales, criterios de aceptación y un README con cuatro secciones antes de implementar. |
-| Contexto e instrucción | El usuario pidió «hace el t1». El trabajo tomó el alcance Spring Boot + SQLite, documentación en español y la necesidad de no simular una solución terminada. |
+| Contexto e instrucción | Se autorizó la especificación inicial con Spring Boot + SQLite y documentación en español, sin presentar el proyecto como terminado antes de implementarlo. |
 | Resultado del agente | Tras fallos de delegación sin cambios, el padre redactó inline la especificación y el README inicial. El resultado quedó en `6b3b91e` (`docs(lab): define initial reservation specification`). La comprobación estructural encontró `R1`–`R7`, criterios, cuatro secciones y enlaces; `git diff --check` no reportó errores. No hubo pruebas de producto porque T1 era documentación pasiva. |
-| Decisión humana | **Aceptar:** «esta perfecto». La aceptación cerró T1; no aprobó T2 ni publicación. |
+| Decisión humana | **Aceptación de T1:** se aprobó la especificación inicial y el README de esa etapa. La decisión no autorizó T2 ni la publicación. |
 | Versión entregada | [Especificación](docs/specification.md), [plan](odd/tasks/lab-reservations.md) y commit `6b3b91e`; aceptación registrada en `L2` y evidencia posterior en `1bba904`. |
 
 **Separación de fuentes:** los intentos fallidos del escritor solo informaron error y cero herramientas; no cuentan como resultado. Las comprobaciones estructurales fueron observadas por el padre y la aceptación fue decisión del usuario.
@@ -305,7 +305,7 @@ Los ejemplos usan `Persona Demo` y fechas fijas; no contienen personas reales, c
 | Objetivo/requisito | Crear el proyecto ejecutable, persistencia SQLite, inventario fijo, inicio/reinicio y separación `repository`, `controller`, `service`, `model` cuando fuera necesaria. |
 | Contexto e instrucción | El usuario autorizó T2, luego pidió reorganizar responsabilidades y continuar. También pidió inicialmente exigir una comprobación independiente HTTP completa. |
 | Resultado del agente | El escritor entregó Spring Boot `3.5.9`, SQLite JDBC `3.49.1.0`, esquema/carga y `GET /api/equipos`; informó RED `404`, GREEN con 1 prueba y package satisfactorio. El padre observó `mvn -B test` con 1 prueba y un JAR iniciado dos veces sobre el mismo SQLite, ambas con HTTP `200` y cinco IDs. Después del refactor, el padre volvió a observar test/package y un smoke de inventario satisfactorios. La entrega está en `b206a9d` (`feat(lab): add persistent inventory API`). |
-| Decisión humana | **Aceptar con excepción:** «ahh dalo por hecho no es necesario,». El usuario levantó la exigencia de una comprobación independiente adicional; no convirtió los intentos incompletos en aprobados. |
+| Decisión humana | **Aceptación de T2 con excepción:** se dispensó la comprobación HTTP independiente adicional. Los intentos incompletos permanecen registrados como tales, no como pruebas aprobadas. |
 | Versión entregada | [InventoryHttpTest](src/test/java/org/example/lab/InventoryHttpTest.java), [`pom.xml`](pom.xml), [configuración SQLite](src/main/resources/application.properties), commit `b206a9d`; decisión y resultados en `L6`–`L10`. |
 
 **Separación de fuentes:** el RED/GREEN y package iniciales fueron informados por el escritor. El test repetido, los dos HTTP `200` y el smoke posterior fueron observados por el padre. Las dos comprobaciones independientes no cerraron: una terminó con salida `124` y otra con salida `1` por acceso al SQLite abierto en Windows; se registran como incompletas, no exitosas.
@@ -317,27 +317,27 @@ Los ejemplos usan `Persona Demo` y fechas fijas; no contienen personas reales, c
 | Objetivo/requisito | Agregar cancelación sin borrado, búsqueda por ID, historial, rechazos restantes y persistencia de reservas después de reiniciar. |
 | Contexto e instrucción | T3a ya había entregado disponibilidad, creación y listado. T3b debía completar `R4`–`R6` y `R7`, preservando las reglas existentes y distinguiendo el reinicio comprobado del pendiente. |
 | Resultado del agente | El escritor informó RED focalizado: 3 de 4 pruebas fallaron por rutas ausentes; luego GREEN 4/4 y suite/package con 9 pruebas. El padre repitió `mvn -B test` con salida `0`. El verificador observó prueba focalizada y suite aislada satisfactorias. [ReservationRestartHttpTest](src/test/java/org/example/lab/ReservationRestartHttpTest.java) recuperó activa y cancelada en dos contextos con el mismo archivo. El smoke manual entre dos procesos permaneció ejecutándose unos 19 minutos y se detuvo sin salida de éxito. La entrega está en `95b3139` (`feat(lab): preserve reservation history on cancellation`). |
-| Decisión humana | **Aceptar evidencia actual:** el usuario eligió «Aceptar evidencia actual» conociendo expresamente la diferencia entre dos contextos Spring y dos procesos Java. |
+| Decisión humana | **Aceptación de la evidencia disponible:** se cerró T3b reconociendo expresamente que la prueba entre contextos Spring no demuestra el reinicio entre dos procesos Java. |
 | Versión entregada | [ReservationLifecycleHttpTest](src/test/java/org/example/lab/ReservationLifecycleHttpTest.java), [ReservationRestartHttpTest](src/test/java/org/example/lab/ReservationRestartHttpTest.java), commit `95b3139`; resultado y decisión en `L14`–`L16`. |
 
 **Separación de fuentes:** el RED/GREEN y package fueron informes del escritor. La repetición Maven fue del padre; los checks focalizados fueron del verificador. La persistencia en dos contextos es un resultado automatizado real. El smoke de procesos es incompleto y la decisión humana acepta esa limitación, no un resultado inexistente.
 
 ### Decisiones posteriores que afectan la versión actual
 
-- El usuario pidió retirar las validaciones concurrentes porque la suficiencia se juzgaría por los requisitos funcionales; luego eligió exactamente “Solo pruebas y referencias a concurrencia”.
+- Se acotó la validación automatizada a los requisitos funcionales de la API: se retiraron las pruebas específicas de concurrencia y sus referencias como cobertura actual.
 - Se eliminaron dos tests dedicados a carreras, se conservaron las transacciones SQLite y la suite actual quedó en 8 pruebas. El commit de ajuste es `5b63bfe`.
 - Las comprobaciones históricas de concurrencia siguen en el Log como hechos ejecutados en aquel momento, pero no se presentan como alcance de prueba actual.
-- T4 fue autorizado con «vamos por t4» y retomado con «nos quedamos en t4» (`L19`–`L20`). Eso autoriza completar y registrar T4 en la rama local; no autoriza push, PR ni entrega pública.
+- Se autorizó y retomó la documentación de T4 (`L19`–`L20`). El alcance comprende su registro en la rama local, no el push, la apertura de un PR ni la entrega pública.
 
 ### Trazabilidad rápida
 
 | Unidad | Commit de producto/documentación | Evidencia principal | Decisión humana |
 | --- | --- | --- | --- |
-| T1 | `6b3b91e` | [Especificación](docs/specification.md) | «esta perfecto» |
-| T2 | `b206a9d` | [InventoryHttpTest](src/test/java/org/example/lab/InventoryHttpTest.java) | «ahh dalo por hecho no es necesario,» |
+| T1 | `6b3b91e` | [Especificación](docs/specification.md) | Especificación inicial aprobada |
+| T2 | `b206a9d` | [InventoryHttpTest](src/test/java/org/example/lab/InventoryHttpTest.java) | Aprobada con dispensa de comprobación independiente adicional |
 | T3a | `99cf479` | [ReservationHttpTest](src/test/java/org/example/lab/ReservationHttpTest.java) | Continuación autorizada dentro de T3 |
-| T3b | `95b3139` | [Lifecycle](src/test/java/org/example/lab/ReservationLifecycleHttpTest.java) y [restart](src/test/java/org/example/lab/ReservationRestartHttpTest.java) | «Aceptar evidencia actual» |
-| Ajuste de pruebas | `5b63bfe` | Suite funcional actual de 8 pruebas | “Solo pruebas y referencias a concurrencia” |
-| T4 | `0142400` y `cfd5263` (cierre del plan) | Este README y checks documentales | «vamos por t4» / «nos quedamos en t4» |
+| T3b | `95b3139` | [Lifecycle](src/test/java/org/example/lab/ReservationLifecycleHttpTest.java) y [restart](src/test/java/org/example/lab/ReservationRestartHttpTest.java) | Evidencia disponible aceptada con límite entre procesos |
+| Ajuste de pruebas | `5b63bfe` | Suite funcional actual de 8 pruebas | Alcance de pruebas acotado a requisitos funcionales |
+| T4 | `0142400` y `cfd5263` (cierre del plan) | Este README y checks documentales | Documentación autorizada en la rama local |
 
 Para auditar detalles, resultados fallidos y límites sin reconstruir conversaciones, consultar el [Log versionado del plan](odd/tasks/lab-reservations.md#log). La entrega permanece local y no publicada.
