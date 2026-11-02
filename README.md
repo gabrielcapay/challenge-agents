@@ -338,6 +338,6 @@ Los ejemplos usan `Persona Demo` y fechas fijas; no contienen personas reales, c
 | T3a | `99cf479` | [ReservationHttpTest](src/test/java/org/example/lab/ReservationHttpTest.java) | Continuación autorizada dentro de T3 |
 | T3b | `95b3139` | [Lifecycle](src/test/java/org/example/lab/ReservationLifecycleHttpTest.java) y [restart](src/test/java/org/example/lab/ReservationRestartHttpTest.java) | «Aceptar evidencia actual» |
 | Ajuste de pruebas | `5b63bfe` | Suite funcional actual de 8 pruebas | “Solo pruebas y referencias a concurrencia” |
-| T4 | `0142400` y commit de cierre del plan | Este README y checks documentales | «vamos por t4» / «nos quedamos en t4» |
+| T4 | `0142400` y `cfd5263` (cierre del plan) | Este README y checks documentales | «vamos por t4» / «nos quedamos en t4» |
 
 Para auditar detalles, resultados fallidos y límites sin reconstruir conversaciones, consultar el [Log versionado del plan](odd/tasks/lab-reservations.md#log). La entrega permanece local y no publicada.
