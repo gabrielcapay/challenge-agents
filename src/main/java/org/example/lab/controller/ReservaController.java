@@ -27,6 +27,12 @@ public class ReservaController {
     @GetMapping("/api/reservas")
     public List<Reserva> list() { return service.list(); }
 
+    @GetMapping("/api/reservas/{id}")
+    public Reserva find(@PathVariable String id) { return service.find(id); }
+
+    @PostMapping("/api/reservas/{id}/cancelacion")
+    public Reserva cancel(@PathVariable String id) { return service.cancel(id); }
+
     @PostMapping("/api/reservas")
     public Reserva create(@RequestBody ReservationInput input) {
         return service.create(input.equipoId(), input.solicitante(), input.inicio(), input.fin());

@@ -1,7 +1,9 @@
 package org.example.lab.repository;
 
 import org.example.lab.model.Reserva;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -33,6 +35,53 @@ public class ReservaRepository {
             while (rows.next()) reservations.add(read(rows));
             return reservations;
         } catch (SQLException e) { throw new IllegalStateException("No se pudo listar reservas", e); }
+    }
+
+    public Reserva find(String id) {
+        try (Connection connection = dataSource.getConnection()) {
+            Reserva reservation = find(connection, id);
+            if (reservation == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reserva desconocida");
+            return reservation;
+        } catch (SQLException e) { throw new IllegalStateException("No se pudo consultar reserva", e); }
+    }
+
+    private Reserva find(Connection connection, String id) throws SQLException {
+        try (PreparedStatement query = connection.prepareStatement(
+                "SELECT id, equipo_id, solicitante, inicio, fin, estado FROM reservas WHERE id = ?")) {
+            query.setString(1, id);
+            try (ResultSet rows = query.executeQuery()) { return rows.next() ? read(rows) : null; }
+        }
+    }
+
+    public Reserva cancel(String id) {
+        try (Connection connection = dataSource.getConnection()) {
+            // Use the same writer lock as creation: a concurrent create cannot check overlap
+            // until this cancellation commits (or rolls back).
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("PRAGMA busy_timeout = 5000");
+                statement.execute("BEGIN IMMEDIATE");
+            }
+            try {
+                int changed;
+                try (PreparedStatement update = connection.prepareStatement(
+                        "UPDATE reservas SET estado = 'CANCELADA' WHERE id = ? AND estado = 'ACTIVA'")) {
+                    update.setString(1, id);
+                    changed = update.executeUpdate();
+                }
+                if (changed == 0) {
+                    if (find(connection, id) == null)
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reserva desconocida");
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Reserva ya cancelada");
+                }
+                Reserva cancelled = find(connection, id);
+                try (Statement statement = connection.createStatement()) { statement.execute("COMMIT"); }
+                return cancelled;
+            } catch (SQLException | RuntimeException failure) {
+                try (Statement statement = connection.createStatement()) { statement.execute("ROLLBACK"); }
+                catch (SQLException rollback) { failure.addSuppressed(rollback); }
+                throw failure;
+            }
+        } catch (SQLException e) { throw new IllegalStateException("No se pudo cancelar reserva", e); }
     }
 
     public boolean existsEquipment(Connection connection, String equipment) throws SQLException {

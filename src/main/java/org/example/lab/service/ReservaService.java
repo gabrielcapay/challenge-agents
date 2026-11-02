@@ -19,6 +19,10 @@ public class ReservaService {
 
     public List<Reserva> list() { return repository.findAll(); }
 
+    public Reserva find(String id) { return repository.find(id); }
+
+    public Reserva cancel(String id) { return repository.cancel(id); }
+
     public boolean available(String equipment, String start, String end) {
         Interval interval = interval(start, end);
         return repository.available(equipment, interval.start(), interval.end());

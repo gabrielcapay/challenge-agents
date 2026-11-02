@@ -1,10 +1,10 @@
 # Especificación inicial: reservas del laboratorio
 
-**Estado:** contrato inicial aceptado en T1. T2 implementó el inventario (`R1`); T3a implementó disponibilidad (`R2`), creación (`R3`), listado (`R5` parcial) y validaciones (`R7` parcial). Cancelación, búsqueda por ID y persistencia de reservas entre procesos quedan pendientes de T3b.
+**Estado:** contrato inicial aceptado en T1. T2 implementó el inventario (`R1`); T3a implementó disponibilidad (`R2`) y creación (`R3`); T3b agregó cancelación (`R4`), consulta/historial (`R5`) y rechazos restantes (`R7`). La persistencia de reservas (`R6`) se comprobó entre dos contextos Spring que usaron el mismo archivo; el ensayo entre procesos del sistema operativo aún está pendiente.
 
 **Objetivo:** consultar disponibilidad y reservar unidades del inventario del laboratorio, cancelar sin perder el registro y recuperar los datos después de reiniciar la aplicación.
 
-**Lectura rápida:** los requisitos `R1`–`R7` describen resultados observables; T2 comprobó el inventario y T3a comprobó los casos de disponibilidad, creación, listado y rechazos aplicables. Los escenarios de cancelación y reinicio con reservas aún no se ejecutaron.
+**Lectura rápida:** los requisitos `R1`–`R7` describen resultados observables; las pruebas HTTP comprobaron inventario, disponibilidad, creación, cancelación, historial y rechazos. La prueba de reinicio recuperó activas y canceladas entre contextos; falta la prueba entre procesos Java separados.
 
 ## Modelo y decisiones temporales
 
@@ -17,7 +17,7 @@
 | Pasado y límites | Se permiten intervalos en el pasado para reproducir escenarios de demostración. No se fija duración máxima ni anticipación máxima; la duración debe ser positiva. No depender del reloj actual para decidir disponibilidad. |
 | Persistencia | Base SQLite local en archivo; reiniciar el proceso sin borrar ese archivo conserva activas y canceladas. Una operación explícita de reinicio de datos, si se agrega, debe distinguirse de reiniciar el proceso e indicar que borra reservas. |
 
-`GET /api/equipos` está implementada desde T2; T3a implementó disponibilidad, creación y listado. Las rutas de cancelación y búsqueda por ID siguen siendo el **contrato propuesto** para T3b. Los ejemplos de esos endpoints aún describen resultados esperados.
+`GET /api/equipos` está implementada desde T2; T3a implementó disponibilidad, creación y listado, y T3b agregó cancelación y búsqueda por ID. Los ejemplos son criterios de aceptación; no se atribuye un ensayo de dos procesos Java hasta observarlo.
 
 ## R1 — Inventario fijo
 
@@ -61,7 +61,7 @@ Se rechaza un `equipoId` desconocido; un `solicitante` vacío o compuesto solo p
 
 **Aceptación R7:** enviar cada caso inválido anterior tanto a la operación que corresponda como, para equipo y tiempo, a disponibilidad; comprobar el rechazo, la ausencia de nuevas reservas y que la consulta posterior de una reserva existente mantiene sus datos. Un conflicto tampoco altera el número de reservas. Las respuestas distinguen entradas inválidas (400), recursos inexistentes (404) y conflictos de estado u ocupación (409), con un mensaje explicativo; la forma exacta del error se fijará al implementar.
 
-## Escenarios de prueba reproducibles (parcialmente ejecutados)
+## Escenarios de prueba reproducibles (comprobados por HTTP en tests; reinicio entre procesos pendiente)
 
 Los ejemplos usan instantes fijos; `A` y `B` representan IDs generados, no valores predeterminados.
 
