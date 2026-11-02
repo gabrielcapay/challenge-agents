@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS equipos (
+    id TEXT PRIMARY KEY,
+    tipo TEXT NOT NULL,
+    orden INTEGER NOT NULL UNIQUE
+);

@@ -1,10 +1,10 @@
 # Especificación inicial: reservas del laboratorio
 
-**Estado:** propuesta de contrato para T1; todavía no hay API ni pruebas implementadas.
+**Estado:** contrato inicial aceptado en T1. T2 implementó y probó el inventario (`R1`) con SQLite; los endpoints de reservas y su persistencia (`R2`–`R7`, salvo la porción de inventario de `R6`) siguen pendientes de T3.
 
 **Objetivo:** consultar disponibilidad y reservar unidades del inventario del laboratorio, cancelar sin perder el registro y recuperar los datos después de reiniciar la aplicación.
 
-**Lectura rápida:** los requisitos `R1`–`R7` describen resultados observables; los ejemplos son criterios de aceptación futuros, no resultados ejecutados.
+**Lectura rápida:** los requisitos `R1`–`R7` describen resultados observables; solo la aceptación del inventario de `R1` y su reinicio con SQLite se comprobó en T2. Los demás ejemplos siguen pendientes de ejecución.
 
 ## Modelo y decisiones temporales
 
@@ -17,7 +17,7 @@
 | Pasado y límites | Se permiten intervalos en el pasado para reproducir escenarios de demostración. No se fija duración máxima ni anticipación máxima; la duración debe ser positiva. No depender del reloj actual para decidir disponibilidad. |
 | Persistencia | Base SQLite local en archivo; reiniciar el proceso sin borrar ese archivo conserva activas y canceladas. Una operación explícita de reinicio de datos, si se agrega, debe distinguirse de reiniciar el proceso e indicar que borra reservas. |
 
-Los nombres de rutas y formas de respuesta que siguen son el **contrato propuesto** para T2–T3; pueden revisarse antes de implementarse dejando constancia de la decisión. Ningún ejemplo de respuesta afirma un resultado observado.
+`GET /api/equipos` ya es una ruta implementada en T2; las rutas de reservas que siguen son el **contrato propuesto** para T3. Sus ejemplos describen resultados esperados y no resultados observados.
 
 ## R1 — Inventario fijo
 
